@@ -8,3 +8,15 @@ class tutorial(models.Model):
 
 	def __str__(self):
 		return self.tutorial_title
+
+class instructor(models.Model):
+	instructor_name =  models.CharField(max_length=200)
+	instructor_list = models.TextField()
+
+	def __str__(self):
+		return self.instructor_name
+
+
+	class Meta:
+		db_table="instructors"
+

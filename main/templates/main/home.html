@@ -19,3 +19,23 @@
     {% endfor %}
   </div>
 {% endblock %}
+
+
+{% block contents %}
+  <div class="row">
+    {% for t in instructors %}
+    <div class="col s12 m6 l4">
+      <div class="card blue-grey darken-1">
+        <div class="card-content white-text">
+          <span class="card-title">{{t.instructor_name}}</span>
+          <p style = "font-size:70%">{{t.instructor_list}}</p>
+        </div>
+        <div class="card-action">
+          <a href="#">This is a link</a>
+          <a href="#">This is a link</a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+{% endblock %}
