@@ -2,16 +2,35 @@ from django.shortcuts import render
 from django.shortcuts import redirect
 from django.http import HttpResponse
 from main.models import tutorial
-from main.models import instructor
+from .models import TutorialCategory
+from .models import TutorialSeries
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
 from .forms import NewUserForm
 
+
+def single_slug(request, single_slug):
+	categories = [c.category_slug for c in TutorialCategory.objects.all()]
+	if single_slug in categories:
+		matching_series = TutorialSeries.objects.filter(tutorial_category__category_slug=single_slug)
+
+		series_urls={}
+		for m in matching_series:
+			part_one = tutorial.objects.filter(tutorial_series__tutorial_series=m.tutorial_series).earliest('tutorial_published')
+			series_urls[m] = part_one			
+		return render(request, 'main/category.html', {'part_one': series_urls})
+
+	tutorials = [t.tutorial_slug for t in tutorial.objects.all()]
+	if single_slug in tutorials:
+		return HttpResponse(f"{single_slug} is a tutorial")
+
+	return HttpResponse(f"{single_slug} does not exist")
+
 def homepage(request):
 	return render(request=request, 
-				  template_name="main/home.html",
-				  context={"tutorials": tutorial.objects.all(), "instructors": instructor.objects.all()})
+				  template_name="main/categories.html",
+				  context={"categories": TutorialCategory.objects.all()})
 
 def register(request):
 	if request.method == 'POST':
@@ -37,7 +56,7 @@ def logout_request(request):
 
 def login_request(request):
 	if request.method == 'POST':
-		form = NewUserForm(request=request, data=request.POST)
+		form = AuthenticationForm(request=request, data=request.POST)
 		if form.is_valid():
 			username = form.cleaned_data.get('username')
 			password = form.cleaned_data.get('password')
@@ -51,5 +70,5 @@ def login_request(request):
 		else:
 			messages.error(request, "Invalid username/password")
 
-	form = NewUserForm()
+	form = AuthenticationForm()
 	return render(request, 'main/login.html', {'form': form})
